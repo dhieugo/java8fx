@@ -118,6 +118,7 @@ public class MainApp extends Application {
             dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
             dialogStage.setScene(scene);
+            scene.getStylesheets().add(MainApp.class.getResource("view/DarkTheme.css").toExternalForm());
 
             // Set the person into the controller.
             PersonEditDialogController controller = loader.getController();

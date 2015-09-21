@@ -4,13 +4,13 @@ import com.dhieugo.address.MainApp;
 import com.dhieugo.address.model.Person;
 import com.dhieugo.address.util.DateUtil;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 
-/**
- * Created by hieu on 9/18/15.
- */
 public class PersonOverviewController {
-
     @FXML
     private TableView<Person> personTable;
     @FXML
@@ -31,12 +31,6 @@ public class PersonOverviewController {
     @FXML
     private Label birthdayLabel;
 
-    @FXML
-    private Button deleteButton;
-
-    @FXML
-    private Button editButton;
-
     // Reference to the main application.
     private MainApp mainApp;
 
@@ -56,22 +50,18 @@ public class PersonOverviewController {
         // Initialize the person table with the two columns.
         firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
-
+        
+        // Clear person details.
         showPersonDetails(null);
 
-        personTable.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue)
-                        -> showPersonDetails(newValue));
-
-        deleteButton.setOnAction((event -> handleDeleteButton()));
-        editButton.setOnAction((event -> handleEditPerson()));
-
-
+        // Listen for selection changes and show the person details when changed.
+        personTable.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> showPersonDetails(newValue));
     }
 
     /**
      * Is called by the main application to give a reference back to itself.
-     *
+     * 
      * @param mainApp
      */
     public void setMainApp(MainApp mainApp) {
@@ -80,11 +70,11 @@ public class PersonOverviewController {
         // Add observable list data to the table
         personTable.setItems(mainApp.getPersonData());
     }
-
+    
     /**
      * Fills all text fields to show details about the person.
      * If the specified person is null, all text fields are cleared.
-     *
+     * 
      * @param person the person or null
      */
     private void showPersonDetails(Person person) {
@@ -106,21 +96,37 @@ public class PersonOverviewController {
             birthdayLabel.setText("");
         }
     }
-
-    private void handleDeleteButton() {
+    
+    /**
+     * Called when the user clicks on the delete button.
+     */
+    @FXML
+    private void handleDeletePerson() {
         int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
-
-        if(selectedIndex > 0) {
+        if (selectedIndex >= 0) {
             personTable.getItems().remove(selectedIndex);
         } else {
             // Nothing selected.
-            Alert alert = new Alert(Alert.AlertType.WARNING);
+            Alert alert = new Alert(AlertType.WARNING);
             alert.initOwner(mainApp.getPrimaryStage());
             alert.setTitle("No Selection");
             alert.setHeaderText("No Person Selected");
             alert.setContentText("Please select a person in the table.");
-
+            
             alert.showAndWait();
+        }
+    }
+    
+    /**
+     * Called when the user clicks the new button. Opens a dialog to edit
+     * details for a new person.
+     */
+    @FXML
+    private void handleNewPerson() {
+        Person tempPerson = new Person();
+        boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
+        if (okClicked) {
+            mainApp.getPersonData().add(tempPerson);
         }
     }
 
@@ -128,6 +134,7 @@ public class PersonOverviewController {
      * Called when the user clicks the edit button. Opens a dialog to edit
      * details for the selected person.
      */
+    @FXML
     private void handleEditPerson() {
         Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
         if (selectedPerson != null) {
@@ -138,12 +145,12 @@ public class PersonOverviewController {
 
         } else {
             // Nothing selected.
-            Alert alert = new Alert(Alert.AlertType.WARNING);
+            Alert alert = new Alert(AlertType.WARNING);
             alert.initOwner(mainApp.getPrimaryStage());
             alert.setTitle("No Selection");
             alert.setHeaderText("No Person Selected");
             alert.setContentText("Please select a person in the table.");
-
+            
             alert.showAndWait();
         }
     }
